@@ -4,6 +4,7 @@ Complete training pipeline for Ad Volume Reducer
 
 import click
 import json
+import pandas as pd
 from pathlib import Path
 from video_processor import VideoProcessor
 from model_trainer import AdDetectorTrainer

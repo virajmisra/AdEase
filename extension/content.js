@@ -86,22 +86,24 @@ class AdVolumeDetector {
   }
 
   stopDetection() {
-    if (this.detectionInterval) {
-      clearInterval(this.detectionInterval);
-      this.detectionInterval = null;
-    }
-
-    if (this.audioContext && this.audioContext.state !== 'closed') {
-      this.audioContext.close();
-      this.audioContext = null;
-    }
-
-    // Restore original volume
-    this.setVideoVolume(this.settings.originalVolume / 100);
-    this.updateDetectionStatus('idle');
-    
-    console.log('Ad Volume Reducer: Detection stopped');
+  if (this.detectionInterval) {
+    clearInterval(this.detectionInterval);
+    this.detectionInterval = null;
   }
+
+  if (this.audioContext && this.audioContext.state !== 'closed') {
+    this.audioContext.close();
+    this.audioContext = null;
+  }
+
+  this.sourceNode = null; // ensure we don't reuse an old one
+
+  this.setVideoVolume(this.settings.originalVolume / 100);
+  this.updateDetectionStatus('idle');
+
+  console.log('Ad Volume Reducer: Detection stopped');
+}
+
 
   findVideoElements() {
     this.videoElements = Array.from(document.querySelectorAll('video')).filter(video => {
@@ -140,39 +142,49 @@ class AdVolumeDetector {
   }
 
   async setupAudioAnalysis() {
-    if (this.videoElements.length === 0) return;
+  if (this.videoElements.length === 0) return;
 
-    try {
-      // Create audio context
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      
-      // Connect to the first video element
-      const video = this.videoElements[0];
-      const source = this.audioContext.createMediaElementSource(video);
-      
-      // Create analyser for frequency analysis
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = 2048;
-      this.analyser.smoothingTimeConstant = 0.3;
-      
-      // Create gain node for volume control
-      this.gainNode = this.audioContext.createGain();
-      
-      // Connect audio graph: source -> analyser -> gain -> destination
-      source.connect(this.analyser);
-      this.analyser.connect(this.gainNode);
-      this.gainNode.connect(this.audioContext.destination);
-      
-      // Initialize feature extraction buffers
-      this.featureBuffer = [];
-      this.bufferSize = 5; // Store 5 seconds of features
-      
-      console.log('Ad Volume Reducer: Audio analysis setup complete');
-    } catch (error) {
-      console.error('Ad Volume Reducer: Failed to setup audio analysis:', error);
-      throw error;
+  try {
+    // Close any previous AudioContext first
+    if (this.audioContext && this.audioContext.state !== 'closed') {
+      try {
+        await this.audioContext.close();
+      } catch (e) {
+        console.warn('Ad Volume Reducer: Failed to close previous AudioContext', e);
+      }
     }
+
+    // Always create a fresh AudioContext and MediaElementSource
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    const video = this.videoElements[0];
+    this.sourceNode = this.audioContext.createMediaElementSource(video);
+
+    // Create analyser for frequency analysis
+    this.analyser = this.audioContext.createAnalyser();
+    this.analyser.fftSize = 2048;
+    this.analyser.smoothingTimeConstant = 0.3;
+
+    // Create gain node for volume control
+    this.gainNode = this.audioContext.createGain();
+
+    // Connect: source -> analyser -> gain -> destination
+    this.sourceNode.connect(this.analyser);
+    this.analyser.connect(this.gainNode);
+    this.gainNode.connect(this.audioContext.destination);
+
+    // Reset buffers
+    this.featureBuffer = [];
+    this.bufferSize = 5;
+
+    console.log('Ad Volume Reducer: Audio analysis setup complete');
+  } catch (error) {
+    console.error('Ad Volume Reducer: Failed to setup audio analysis:', error);
+    throw error;
   }
+}
+
+
 
   startDetectionLoop() {
     if (this.detectionInterval) return;
@@ -453,7 +465,7 @@ class AdVolumeDetector {
   }
 }
 
-}
+
 
 // Model classes for different types of inference
 class SimpleJSModel {

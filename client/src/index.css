@@ -337,4 +337,21 @@
   .slider-warning [data-state="range"] {
     background-color: hsl(var(--chart-2));
   }
+
+  html, body, #root {
+  width: 360px;
+  height: 300px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: transparent; 
+}
+
+
+  html, body, #root {
+  border-radius: 12px; 
+  box-shadow: 0 0 10px rgba(0,0,0,0.2); 
+  }
+
 }
