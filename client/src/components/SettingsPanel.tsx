@@ -62,7 +62,7 @@ export default function SettingsPanel({
             onValueChange={onSensitivityChange}
             max={100}
             min={10}
-            step={5}
+            step={1}
             className="w-full"
             data-testid="slider-sensitivity"
           />

@@ -74,10 +74,10 @@ export default function VolumeControl({
       {/* Reduced Volume Control */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Ad Volume Reduction
+          Ad Volume
         </label>
         <p className="text-xs text-muted-foreground">
-          How much to lower the volume when ads are detected.
+          Your set volume when ads are detected.
         </p>
         <div className="flex items-center gap-3">
           <VolumeX className="w-4 h-4 text-muted-foreground" />
