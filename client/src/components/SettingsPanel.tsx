@@ -53,6 +53,10 @@ export default function SettingsPanel({
             </Badge>
           </div>
           
+          <p className="text-xs text-muted-foreground">
+            How quickly the extension responds to potential ads. Higher values detect ads faster but may have false positives.
+          </p>
+          
           <Slider
             value={[sensitivity]}
             onValueChange={onSensitivityChange}
@@ -78,23 +82,33 @@ export default function SettingsPanel({
             <h4 className="text-sm font-medium">Volume Controls</h4>
           </div>
           
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm">Auto-adjust volume</label>
-              <Switch
-                checked={autoAdjust}
-                onCheckedChange={onAutoAdjustChange}
-                data-testid="switch-auto-adjust"
-              />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm">Auto-adjust volume</label>
+                <Switch
+                  checked={autoAdjust}
+                  onCheckedChange={onAutoAdjustChange}
+                  data-testid="switch-auto-adjust"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Automatically lower volume when ads are detected and restore when they end.
+              </p>
             </div>
             
-            <div className="flex items-center justify-between">
-              <label className="text-sm">Smooth transitions</label>
-              <Switch
-                checked={fadeTransitions}
-                onCheckedChange={onFadeTransitionsChange}
-                data-testid="switch-fade-transitions"
-              />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm">Smooth transitions</label>
+                <Switch
+                  checked={fadeTransitions}
+                  onCheckedChange={onFadeTransitionsChange}
+                  data-testid="switch-fade-transitions"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Gradually fade volume changes instead of instant adjustments for a smoother experience.
+              </p>
             </div>
           </div>
         </div>

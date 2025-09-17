@@ -93,19 +93,15 @@ export default function ExtensionPopup({ className }: ExtensionPopupProps) {
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="w-full justify-between p-0 h-auto"
+                  className="w-full justify-between p-0 h-auto transition-all duration-200"
                   data-testid="button-toggle-settings"
                 >
                   <span className="text-sm font-medium">Advanced Settings</span>
-                  {showSettings ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" />
-                  )}
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showSettings ? 'rotate-180' : ''}`} />
                 </Button>
               </CollapsibleTrigger>
               
-              <CollapsibleContent className="pt-4">
+              <CollapsibleContent className="pt-4 transition-all duration-300 ease-in-out">
                 <SettingsPanel
                   sensitivity={sensitivity}
                   onSensitivityChange={(value) => setSensitivity(value[0])}

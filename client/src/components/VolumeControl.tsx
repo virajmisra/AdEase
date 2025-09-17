@@ -51,6 +51,9 @@ export default function VolumeControl({
         <label className="text-sm font-medium text-foreground">
           Normal Volume
         </label>
+        <p className="text-xs text-muted-foreground">
+          Your regular video volume level during program content.
+        </p>
         <div className="flex items-center gap-3">
           <Volume2 className="w-4 h-4 text-muted-foreground" />
           <Slider
@@ -73,6 +76,9 @@ export default function VolumeControl({
         <label className="text-sm font-medium text-foreground">
           Ad Volume Reduction
         </label>
+        <p className="text-xs text-muted-foreground">
+          How much to lower the volume when ads are detected.
+        </p>
         <div className="flex items-center gap-3">
           <VolumeX className="w-4 h-4 text-muted-foreground" />
           <Slider
