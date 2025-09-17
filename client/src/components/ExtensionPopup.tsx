@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import ExtensionToggle from "./ExtensionToggle";
 import StatusIndicator, { type DetectionStatus } from "./StatusIndicator";
 import VolumeControl from "./VolumeControl";
-import ModelStatus, { type ModelState } from "./ModelStatus";
 import SettingsPanel from "./SettingsPanel";
 
 interface ExtensionPopupProps {
@@ -20,7 +19,6 @@ export default function ExtensionPopup({ className }: ExtensionPopupProps) {
   // Extension state
   const [extensionEnabled, setExtensionEnabled] = useState(true);
   const [detectionStatus, setDetectionStatus] = useState<DetectionStatus>('program');
-  const [modelState, setModelState] = useState<ModelState>('ready');
   
   // Volume state
   const [originalVolume, setOriginalVolume] = useState(75);
@@ -55,7 +53,6 @@ export default function ExtensionPopup({ className }: ExtensionPopupProps) {
     setDetectionStatus(status);
   };
 
-  const isActive = extensionEnabled && detectionStatus !== 'idle';
   const isVolumeReduced = detectionStatus === 'ad';
 
   return (
@@ -64,7 +61,6 @@ export default function ExtensionPopup({ className }: ExtensionPopupProps) {
         <ExtensionToggle
           enabled={extensionEnabled}
           onToggle={handleExtensionToggle}
-          isActive={isActive}
         />
       </CardHeader>
 
@@ -77,38 +73,6 @@ export default function ExtensionPopup({ className }: ExtensionPopupProps) {
               <StatusIndicator status={detectionStatus} />
             </div>
 
-            {/* Demo Controls - todo: remove mock functionality */}
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => simulateDetection('program')}
-                className="text-xs"
-                data-testid="button-simulate-program"
-              >
-                Program
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => simulateDetection('ad')}
-                className="text-xs"
-                data-testid="button-simulate-ad"
-              >
-                Ad
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => simulateDetection('processing')}
-                className="text-xs"
-                data-testid="button-simulate-processing"
-              >
-                Processing
-              </Button>
-            </div>
-
-            <Separator />
 
             {/* Volume Control */}
             <div className="space-y-2">
@@ -123,16 +87,6 @@ export default function ExtensionPopup({ className }: ExtensionPopupProps) {
             </div>
 
             <Separator />
-
-            {/* Model Status */}
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium text-foreground">ML Model</h4>
-              <ModelStatus
-                state={modelState}
-                lastUpdate={new Date(Date.now() - 5 * 60 * 1000)} // 5 min ago
-                accuracy={0.89}
-              />
-            </div>
 
             {/* Settings Panel */}
             <Collapsible open={showSettings} onOpenChange={setShowSettings}>
