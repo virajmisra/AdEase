@@ -81,6 +81,7 @@ export default function ExtensionPopup({ className }: ExtensionPopupProps) {
                 originalVolume={originalVolume}
                 reducedVolume={reducedVolume}
                 isReduced={isVolumeReduced}
+                detectionStatus={detectionStatus}
                 onOriginalVolumeChange={(value) => setOriginalVolume(value[0])}
                 onReducedVolumeChange={(value) => setReducedVolume(value[0])}
               />

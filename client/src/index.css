@@ -326,4 +326,15 @@
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
   }
+
+  /* Slider color variants for status indication */
+  .slider-success [data-state="thumb"],
+  .slider-success [data-state="range"] {
+    background-color: hsl(var(--chart-1));
+  }
+
+  .slider-warning [data-state="thumb"],
+  .slider-warning [data-state="range"] {
+    background-color: hsl(var(--chart-2));
+  }
 }

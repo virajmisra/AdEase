@@ -20,6 +20,7 @@ export default function VolumeControlExample() {
         originalVolume={originalVolume}
         reducedVolume={reducedVolume}
         isReduced={isReduced}
+        detectionStatus={isReduced ? 'ad' : 'program'}
         onOriginalVolumeChange={(value) => setOriginalVolume(value[0])}
         onReducedVolumeChange={(value) => setReducedVolume(value[0])}
       />

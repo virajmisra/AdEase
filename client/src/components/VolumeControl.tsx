@@ -1,11 +1,13 @@
 import { Slider } from "@/components/ui/slider";
 import { Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { DetectionStatus } from "./StatusIndicator";
 
 interface VolumeControlProps {
   originalVolume: number;
   reducedVolume: number;
   isReduced: boolean;
+  detectionStatus: DetectionStatus;
   onOriginalVolumeChange: (volume: number[]) => void;
   onReducedVolumeChange: (volume: number[]) => void;
   className?: string;
@@ -15,19 +17,41 @@ export default function VolumeControl({
   originalVolume,
   reducedVolume,
   isReduced,
+  detectionStatus,
   onOriginalVolumeChange,
   onReducedVolumeChange,
   className
 }: VolumeControlProps) {
+  
+  // Determine colors based on detection status
+  const getVolumeBarColor = () => {
+    if (detectionStatus === 'program') return 'bg-success';
+    if (detectionStatus === 'ad') return 'bg-warning';
+    return 'bg-muted';
+  };
+  
+  const getIconColor = () => {
+    if (detectionStatus === 'program') return 'text-success';
+    if (detectionStatus === 'ad') return 'text-warning';
+    return isReduced ? 'text-warning' : 'text-success';
+  };
+  
+  const getOriginalSliderStyle = () => {
+    return detectionStatus === 'program' ? 'slider-success' : '';
+  };
+  
+  const getAdSliderStyle = () => {
+    return detectionStatus === 'ad' ? 'slider-warning' : '';
+  };
   return (
     <div className={cn("space-y-4", className)} data-testid="volume-control">
       {/* Current Volume Visualization */}
       <div className="flex items-center gap-3">
         <div className="w-6 h-6 flex items-center justify-center">
           {isReduced ? (
-            <VolumeX className="w-4 h-4 text-warning" />
+            <VolumeX className={cn("w-4 h-4", getIconColor())} />
           ) : (
-            <Volume2 className="w-4 h-4 text-success" />
+            <Volume2 className={cn("w-4 h-4", getIconColor())} />
           )}
         </div>
         <div className="flex-1">
@@ -35,7 +59,7 @@ export default function VolumeControl({
             <div 
               className={cn(
                 "h-full transition-all duration-300 rounded-full",
-                isReduced ? "bg-warning" : "bg-success"
+                getVolumeBarColor()
               )}
               style={{ width: `${isReduced ? reducedVolume : originalVolume}%` }}
             />
@@ -62,7 +86,7 @@ export default function VolumeControl({
             max={100}
             min={0}
             step={1}
-            className="flex-1"
+            className={cn("flex-1", getOriginalSliderStyle())}
             data-testid="slider-original-volume"
           />
           <span className="text-sm text-muted-foreground min-w-[3rem] text-right">
@@ -87,7 +111,7 @@ export default function VolumeControl({
             max={100}
             min={0}
             step={1}
-            className="flex-1"
+            className={cn("flex-1", getAdSliderStyle())}
             data-testid="slider-reduced-volume"
           />
           <span className="text-sm text-muted-foreground min-w-[3rem] text-right">
