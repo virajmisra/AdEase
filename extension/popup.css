@@ -1,0 +1,395 @@
+/* Base styles for the popup */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  min-height: 400px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  background: #f8f9fa;
+  color: #1a1a1a;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e3e3e3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1a1a1a;
+    color: #e3e3e3;
+  }
+  
+  .spinner {
+    border-color: #404040;
+    border-top-color: #007bff;
+  }
+}
+
+/* Popup container */
+.popup-container {
+  padding: 16px;
+}
+
+/* Header section */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.title-section h1 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.status-text {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e5e7eb;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #3b82f6;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* Content sections */
+.content > div {
+  margin-bottom: 20px;
+}
+
+.content h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+/* Status indicator */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #9ca3af;
+}
+
+.status-indicator.program .status-dot {
+  background-color: #10b981;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.ad .status-dot {
+  background-color: #f59e0b;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.processing .status-dot {
+  background-color: #6b7280;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Volume display */
+.volume-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.volume-icon {
+  font-size: 16px;
+}
+
+.volume-bar {
+  flex: 1;
+  height: 4px;
+  background-color: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.volume-fill {
+  height: 100%;
+  background-color: #3b82f6;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.volume-percentage {
+  font-size: 12px;
+  color: #6b7280;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Control groups */
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.control-group label {
+  font-size: 12px;
+  color: #374151;
+  min-width: 80px;
+}
+
+.control-group input[type="range"] {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #e5e7eb;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+}
+
+.control-group input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: none;
+}
+
+.control-group span {
+  font-size: 12px;
+  color: #6b7280;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Settings section */
+.settings-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+}
+
+.chevron {
+  transition: transform 0.3s ease;
+}
+
+.advanced-settings {
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.advanced-settings.collapsed {
+  max-height: 0;
+}
+
+.advanced-settings:not(.collapsed) {
+  max-height: 400px;
+  padding-top: 12px;
+}
+
+/* Help text */
+.help-text {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 4px 0 8px 0;
+  line-height: 1.4;
+}
+
+/* Checkbox groups */
+.checkbox-group {
+  margin-bottom: 16px;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #374151;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Reset button */
+.reset-button {
+  width: 100%;
+  padding: 8px 16px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.reset-button:hover {
+  background-color: #e5e7eb;
+}
+
+/* Disabled state */
+.disabled-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+}
+
+.disabled-message {
+  color: #6b7280;
+}
+
+.disabled-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .status-text,
+  .control-group label,
+  .help-text,
+  .volume-percentage,
+  .control-group span {
+    color: #9ca3af;
+  }
+  
+  .content h3,
+  .settings-toggle,
+  .checkbox-group label {
+    color: #e5e7eb;
+  }
+  
+  .status-indicator,
+  .volume-display {
+    background-color: #374151;
+  }
+  
+  .slider {
+    background-color: #4b5563;
+  }
+  
+  .volume-bar,
+  .control-group input[type="range"] {
+    background-color: #4b5563;
+  }
+  
+  .reset-button {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+  }
+  
+  .reset-button:hover {
+    background-color: #4b5563;
+  }
+}
