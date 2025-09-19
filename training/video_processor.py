@@ -166,41 +166,63 @@ class VideoProcessor:
             if len(y) == 0:
                 return None
                 
-            # Extract MFCCs
-            mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-            mfcc_features = {
-                f'mfcc_{i}_mean': np.mean(mfccs[i]) 
-                for i in range(mfccs.shape[0])
-            }
-            mfcc_std_features = {
-                f'mfcc_{i}_std': np.std(mfccs[i]) 
-                for i in range(mfccs.shape[0])
-            }
+            # Spectral features
+            spectral_centroid = np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))
+            spectral_rolloff = np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr))
+            spectral_bandwidth = np.mean(librosa.feature.spectral_bandwidth(y=y, sr=sr))
             
-            # Extract spectral features
-            spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)
-            spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr)
-            spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)
-            zero_crossing_rate = librosa.feature.zero_crossing_rate(y)
+            # Compute spectral flux
+            S = np.abs(librosa.stft(y))
+            # Normalize S along frequency axis for spectral flux calculation
+            S_norm = S / np.sum(S, axis=0, keepdims=True).clip(min=1e-10)
+            # Compute difference between successive frames
+            spectral_flux = np.sqrt(np.sum(np.diff(S_norm, axis=1)**2, axis=0))
+            spectral_flux = np.mean(spectral_flux)
             
-            # Extract tempo and rhythm features
-            tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+            # Energy and energy entropy
+            frame_length = 2048
+            hop_length = 512
+            energy_frames = np.array([
+                np.sum(np.square(y[i:i+frame_length]))
+                for i in range(0, len(y), hop_length)
+                if i+frame_length <= len(y)
+            ])
+            energy = np.sum(np.square(y))
+            # Normalize energy frames
+            energy_norm = energy_frames / (np.sum(energy_frames) + 1e-10)
+            # Energy entropy
+            energy_entropy = -np.sum(energy_norm * np.log2(energy_norm + 1e-10))
             
-            # Combine all features
+            # Zero crossing rate
+            zero_crossing_rate = np.mean(librosa.feature.zero_crossing_rate(y))
+            
+            # RMS
+            rms = np.mean(librosa.feature.rms(y=y))
+            
+            # Peak volume
+            peak_volume = np.max(np.abs(y))
+            
+            # Volume variance
+            volume_variance = np.var(y)
+            
+            # Harmonic ratio
+            y_harmonic, _ = librosa.effects.hpss(y)
+            harmonic_energy = np.sum(y_harmonic**2)
+            total_energy = np.sum(y**2)
+            harmonic_ratio = harmonic_energy / (total_energy + 1e-10)
+            
             features = {
-                **mfcc_features,
-                **mfcc_std_features,
-                'spectral_centroid_mean': np.mean(spectral_centroids),
-                'spectral_centroid_std': np.std(spectral_centroids),
-                'spectral_rolloff_mean': np.mean(spectral_rolloff),
-                'spectral_rolloff_std': np.std(spectral_rolloff),
-                'spectral_bandwidth_mean': np.mean(spectral_bandwidth),
-                'spectral_bandwidth_std': np.std(spectral_bandwidth),
-                'zero_crossing_rate_mean': np.mean(zero_crossing_rate),
-                'zero_crossing_rate_std': np.std(zero_crossing_rate),
-                'tempo': tempo,
-                'audio_length': len(y) / sr,
-                'audio_rms': np.sqrt(np.mean(y**2)),
+                'spectral_centroid': spectral_centroid,
+                'spectral_rolloff': spectral_rolloff,
+                'spectral_bandwidth': spectral_bandwidth,
+                'spectral_flux': spectral_flux,
+                'energy': energy,
+                'energy_entropy': energy_entropy,
+                'zero_crossing_rate': zero_crossing_rate,
+                'rms': rms,
+                'peak_volume': peak_volume,
+                'volume_variance': volume_variance,
+                'harmonic_ratio': harmonic_ratio,
             }
             
             return features

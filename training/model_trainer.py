@@ -41,8 +41,8 @@ class AdDetectorTrainer:
     
     def prepare_data(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Prepare data for training"""
-        # Separate features and labels
-        X = df.drop(['label', 'clip_path'], axis=1)
+        # Drop 'label' and optionally 'clip_path' if it exists
+        X = df.drop(columns=[col for col in ['label', 'clip_path'] if col in df.columns])
         y = df['label']
         
         # Store feature names

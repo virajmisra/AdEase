@@ -49,7 +49,8 @@ def process_video(video_path, timestamps_path, output_dir, clip_duration):
 
 
 @cli.command()
-@click.option('--features-path', default='processed_data/features/combined_features.csv')
+@click.option('--features-path', default='data/combined_features.csv') 
+# ABOVE LINE SHOULD BE : @click.option('--features-path', default='processed_data/features/combined_features.csv') 
 @click.option('--output-dir', default='models')
 def train_models(features_path, output_dir):
     """Train ad detection models"""
