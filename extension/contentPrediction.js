@@ -9,21 +9,7 @@ class AdVolumeDetector {
     this.model = null;
     this.videoElements = [];
     this.detectionInterval = null;
-    this.collectedData = []; // Array to store collected features
-    this.sampleIndex = 0; // Counter to track when each sample was collected
-    // Restore from localStorage if available
-    const savedData = localStorage.getItem('adVolumeCollectedData');
-    if (savedData) {
-      try {
-        this.collectedData = JSON.parse(savedData);
-        this.sampleIndex = this.collectedData.length;
-        console.log(`Restored ${this.collectedData.length} samples from localStorage`);
-      } catch (e) {
-        console.warn('Failed to parse saved collected data, starting fresh');
-        this.collectedData = [];
-        this.sampleIndex = 0;
-      }
-    }
+    
     this.init();
   }
 
@@ -63,12 +49,6 @@ class AdVolumeDetector {
         if (this.isEnabled) {
           this.startDetection();
         }
-
-      case 'EXPORT_DATA':
-        this.exportCollectedData();
-        sendResponse({ success: true });
-        break;
-
         sendResponse({ success: true });
         break;
 
@@ -136,22 +116,7 @@ class AdVolumeDetector {
     if (this.model) return;
 
     try {
-
-      // Try to load random forest JS model as first
-      const rfModelPath = chrome.runtime.getURL('models/random_forest_js.json');
-      try {
-        const rfResponse = await fetch(rfModelPath);
-        if (rfResponse.ok) {
-          const jsModel = await rfResponse.json();
-          this.model = new SimpleJSModel(jsModel);
-          console.log('Ad Volume Reducer: random forest model loaded');
-          return;
-        }
-      } catch (error) {
-        console.log('Ad Volume Reducer: random forest model not found, using fallback heuristic model');
-      }
-
-      // Try to load logistic regression JS model fallback
+      // Try to load logistic regression JS model first
       const lrModelPath = chrome.runtime.getURL('models/logistic_regression_js.json');
       try {
         const lrResponse = await fetch(lrModelPath);
@@ -164,6 +129,20 @@ class AdVolumeDetector {
       } catch (error) {
         // Will try random forest next
         console.log('Ad Volume Reducer: logistic regression model not found, trying random forest model...');
+      }
+
+      // Try to load random forest JS model as fallback
+      const rfModelPath = chrome.runtime.getURL('models/random_forest_js.json');
+      try {
+        const rfResponse = await fetch(rfModelPath);
+        if (rfResponse.ok) {
+          const jsModel = await rfResponse.json();
+          this.model = new SimpleJSModel(jsModel);
+          console.log('Ad Volume Reducer: random forest model loaded');
+          return;
+        }
+      } catch (error) {
+        console.log('Ad Volume Reducer: random forest model not found, using fallback heuristic model');
       }
 
       // Fallback to a heuristic-based model for demo purposes
@@ -237,18 +216,24 @@ class AdVolumeDetector {
   startDetectionLoop() {
     if (this.detectionInterval) return;
 
+    console.log('Ad Volume Reducer: Starting detection loop...');
 
     this.detectionInterval = setInterval(() => {
+      console.log('Ad Volume Reducer: Calling performDetection...');
       this.performDetection();
     }, 1000); // Analyze every second
   }
 
   performDetection() {
-    if (!this.analyser /*|| !this.model*/ || !this.isEnabled) return;
+    console.log("performDetection called");
+    if (!this.analyser || !this.model || !this.isEnabled) return;
+
+    console.log('Ad Volume Reducer: performDetection triggered');
 
     try {
       // Extract comprehensive audio features
       const features = this.extractAudioFeatures();
+      console.log("Extracted features:", features);
       
       if (features) {
         // Add features to buffer
@@ -256,20 +241,7 @@ class AdVolumeDetector {
         if (this.featureBuffer.length > this.bufferSize) {
           this.featureBuffer.shift();
         }
-        /* DATA COLLECTION MODE
-        // Add sample index for this detection
-        this.sampleIndex++;
-        features.sampleIndex = this.sampleIndex;
-        // Instead of running predictions, collect features with timestamp
-        this.collectedData.push(features);
-        // Persist to localStorage so it survives reloads
-        localStorage.setItem('adVolumeCollectedData', JSON.stringify(this.collectedData));
-        // Log it so you can see the running index in the console
-        console.log(`Sample ${features.sampleIndex} collected`, features);
-        */
-
-
-        // PREDICTION MODE 
+        
         // Run prediction if we have enough samples
         if (this.featureBuffer.length >= 3) {
           const prediction = this.model.predict(this.featureBuffer);
@@ -284,40 +256,11 @@ class AdVolumeDetector {
             this.setAudioVolume(this.settings.originalVolume / 100);
           }
         }
-        
       }
       
     } catch (error) {
       console.error('Ad Volume Reducer: Detection error:', error);
     }
-  }
-
-  exportCollectedData() {
-    if (!this.collectedData || this.collectedData.length === 0) {
-      alert('No data collected to export.');
-      return;
-    }
-    // Get all unique keys from the first element (all features should have the same keys)
-    const keys = Object.keys(this.collectedData[0]);
-    // CSV header
-    const csvRows = [keys.join(',')];
-    // CSV body
-    for (const row of this.collectedData) {
-      csvRows.push(keys.map(k => row[k]).join(','));
-    }
-    const csvContent = csvRows.join('\n');
-    // Create a blob and trigger download
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'collected_features.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // Clear localStorage after exporting to start fresh next time
-    localStorage.removeItem('adVolumeCollectedData');
-    URL.revokeObjectURL(url);
   }
 
   extractAudioFeatures() {
@@ -705,10 +648,11 @@ class HeuristicModel {
   }
 }
 
+// Initialize detector when page loads
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    window.__adVolumeDetector = new AdVolumeDetector();
+    new AdVolumeDetector();
   });
 } else {
-  window.__adVolumeDetector = new AdVolumeDetector();
+  new AdVolumeDetector();
 }
